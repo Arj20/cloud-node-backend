@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../db");
 const auth = require("../middleware/auth");
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const result = await db.query(
       "SELECT * FROM tasks WHERE user_id=$1 ORDER BY id DESC",
