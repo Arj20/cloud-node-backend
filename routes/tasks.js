@@ -3,6 +3,8 @@ const router = express.Router();
 const db = require("../db");
 const auth = require("../middleware/auth");
 const redis = require("../redis");
+const { SendMessageCommand } = require("@aws-sdk/client-sqs");
+const sqs = require("../sqs");
 
 router.get("/", auth, async (req, res) => {
   const userId = req.user.userId;
@@ -41,8 +43,18 @@ router.post("/", auth, async (req, res) => {
     [title, req.user.userId],
   );
 
-  // invalidate cache
-  await redis.del(`tasks:${req.user.userId}`);
+  // send message to queue
+  await sqs.send(
+    new SendMessageCommand({
+      QueueUrl: process.env.SQS_URL,
+      MessageBody: JSON.stringify({
+        type: "TASK_CREATED",
+        userId: req.user.userId,
+        taskId: result.rows[0].id,
+        title,
+      }),
+    }),
+  );
 
   res.json(result.rows[0]);
 });
