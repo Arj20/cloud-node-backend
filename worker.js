@@ -3,6 +3,7 @@ const {
   ReceiveMessageCommand,
   DeleteMessageCommand,
 } = require("@aws-sdk/client-sqs");
+require("dotenv").config();
 
 const sqs = new SQSClient({ region: "us-east-1" });
 
